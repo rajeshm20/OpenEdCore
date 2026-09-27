@@ -83,7 +83,7 @@ flowchart TD
     subgraph Services["Domain Services"]
         TokenSvc["TokenService<br/>(Dual Token Lifecycle, RTR & Revocation)"]
         StudentSvc["StudentService<br/>(Registration & Auth Logic)"]
-        EmailSvc["SendGridEmailService<br/>(Async HTTP OTP Delivery)"]
+        EmailSvc["EmailService<br/>(SendGrid / Mailpit / Console)"]
     end
 
     subgraph Repositories["Data Repositories (Protocol-Driven)"]
@@ -101,8 +101,9 @@ flowchart TD
         ResetTokens[("Password Reset Tokens Table")]
     end
 
-    subgraph External["External Services"]
-        SendGrid["SendGrid REST API<br/>(v3 Mail Send)"]
+    subgraph External["External Services & Dev Tools"]
+        SendGrid["SendGrid REST API<br/>(v3 Mail Send - Production)"]
+        Mailpit["Mailpit Local Server<br/>(Web UI :8025 / REST API - Dev)"]
     end
 
     iOS --> UnifiedErr
@@ -124,6 +125,7 @@ flowchart TD
     StudentRoutes --> StudentSvc
 
     EmailSvc -.->|"AsyncHTTPClient"| SendGrid
+    EmailSvc -.->|"AsyncHTTPClient (Dev / Fallback)"| Mailpit
     StudentSvc --> StudentRepo
     TokenSvc --> RefreshRepo
     TokenSvc --> RevokedRepo
@@ -159,7 +161,8 @@ flowchart TD
 | **JWT / JWTKit** | Cryptographic token creation and HS256 signing | `4.0.0+` |
 | **AsyncHTTPClient** | High-performance asynchronous HTTP networking | `1.19.0+` |
 | **NIOSSL** | TLS 1.2+ enforcement and AEAD cipher suites | `2.65.0+` |
-| **SendGrid API** | Transactional email delivery for OTP verification | REST v3 |
+| **SendGrid API** | Transactional email delivery for OTP verification (Production) | REST v3 |
+| **Mailpit** | Local email testing tool & OTP fallback with Web UI | `axllent/mailpit:latest` (Web: `8025`, SMTP: `1025`) |
 | **Docker** | Multi-stage containerization with jemalloc | `24.0+` |
 
 ---
@@ -194,7 +197,8 @@ flowchart TD
 - **Two-Phase OTP Password Reset**: 6-digit numeric verification code dispatched via SendGrid with a 10-minute validity window.
 - **Brute-Force Safeguard**: Max 3 verification attempts per OTP; automatically marks codes as invalid upon exhaustion.
 - **Ephemeral Session Tokens**: Code verification returns an unguessable 32-byte URL-safe session token required to finalize password updates.
-- **Console Fallback**: Automatically falls back to console logging when `SENDGRID_API_KEY` is not supplied in local environments.
+- **Mailpit Dev Testing & Fallback**: Integrates Mailpit (`http://localhost:8025`) for zero-external-dependency local OTP testing; automatically falls back from SendGrid to Mailpit and Console in development environments.
+- **Console Fallback**: Automatically falls back to console logging when no external or local mail provider is available.
 
 ### Security & Enterprise Hardening
 - **Repository Abstraction Layer**: Protocol-driven `StudentRepository`, `RefreshTokenRepository`, `PasswordResetRepository`, and `RevokedTokenRepository` isolate business logic from database drivers, ensuring controllers and GraphQL resolvers are 100% decoupled from direct Fluent ORM calls.
@@ -238,15 +242,23 @@ cp .env.example .env
 
 Review `.env` and adjust the variables if needed. For standard local development, the default database settings in `.env.example` map directly to the docker-compose service.
 
-### 3. Start PostgreSQL Database
+### 3. Start Infrastructure (PostgreSQL & Mailpit)
 
-Launch the PostgreSQL 16 container in detached mode:
+Launch the PostgreSQL 16 database and Mailpit email testing server in detached mode:
 
 ```bash
-docker compose up db -d
+docker compose up -d db mailpit
 ```
 
-Verify that the database is healthy:
+Or start Mailpit individually for local email capture and inspection:
+
+```bash
+docker compose up -d mailpit
+```
+
+> **Mailpit Web UI**: Open [`http://localhost:8025`](http://localhost:8025) in your browser to inspect outgoing password reset OTP emails without needing a live SendGrid account.
+
+Verify that the containers are healthy and running:
 
 ```bash
 docker compose ps
@@ -320,7 +332,10 @@ The application strictly validates environment variables during startup and fail
 | :--- | :---: | :--- | :--- |
 | `AUTO_MIGRATE` | No | Auto-apply pending migrations on startup | `true` (dev) / `false` (prod) |
 | `ENABLE_GRAPHIQL` | No | Enable `/graphiql` playground (ignored in prod) | `true` |
-| `SENDGRID_API_KEY` | No | SendGrid API key (falls back to console email) | `SG.xxxxxxxx` |
+| `EMAIL_PROVIDER` | No | Email delivery strategy (`mailpit`, `sendgrid`, `console`) | `mailpit` (dev) / `sendgrid` (prod) |
+| `MAILPIT_HOST` | No | Mailpit REST API host for local email capture | `localhost` |
+| `MAILPIT_PORT` | No | Mailpit HTTP port (Web UI and REST API) | `8025` |
+| `SENDGRID_API_KEY` | No | SendGrid API key (falls back to Mailpit / console email) | `SG.xxxxxxxx` |
 | `FROM_EMAIL` | No | Sender email address for transactional emails | `noreply@openedschool.com` |
 | `ENABLE_HTTPS` | No | Enable native TLS server listener | `false` |
 | `TLS_CERT` | If HTTPS | Path to PEM TLS certificate file | `certs/cert.pem` |
@@ -643,7 +658,7 @@ OpenEdCore/
 │       ├── Models/                 # Database entities (Student, RefreshToken, TokenBlacklist)
 │       ├── Repositories/           # Data access repositories (StudentRepository, RefreshTokenRepository)
 │       ├── Routes/                 # HTTP & GraphQL routing dispatchers
-│       └── Services/               # Domain logic (TokenService, StudentService, SendGrid)
+│       └── Services/               # Domain logic (TokenService, StudentService, SendGrid/Mailpit)
 ├── Specs/                          # Architectural and security specifications
 └── Tests/
     └── OpenEdCoreTests/            # Comprehensive 146-test integration & unit suite

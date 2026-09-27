@@ -205,15 +205,75 @@ private func configureJWT(_ app: Application) throws {
 }
 
 private func configureEmail(_ app: Application) {
-    if let sendGridKey = Environment.get("SENDGRID_API_KEY") {
-        app.emailService = SendGridEmailService(
+    let fromEmail = Environment.get("FROM_EMAIL") ?? "noreply@openedschool.com"
+    let provider = Environment.get("EMAIL_PROVIDER")?.lowercased()
+    let mailpitHost = Environment.get("MAILPIT_HOST") ?? "localhost"
+    let mailpitPort = Environment.get("MAILPIT_PORT").flatMap(Int.init) ?? 8025
+
+    let mailpitService = MailpitEmailService(
+        host: mailpitHost,
+        port: mailpitPort,
+        fromEmail: fromEmail,
+        httpClient: app.http.client.shared
+    )
+    let consoleService = ConsoleEmailService(logger: app.logger)
+
+    // Explicit Mailpit mode
+    if provider == "mailpit" {
+        app.logger.info("Using Mailpit email service at http://\(mailpitHost):\(mailpitPort) with Console fallback")
+        app.emailService = FallbackEmailService(
+            primary: mailpitService,
+            fallback: consoleService,
+            logger: app.logger
+        )
+        return
+    }
+
+    // Explicit Console mode
+    if provider == "console" {
+        app.logger.info("Using Console email logging")
+        app.emailService = consoleService
+        return
+    }
+
+    // SendGrid configured
+    if let sendGridKey = Environment.get("SENDGRID_API_KEY"),
+       !sendGridKey.trimmingCharacters(in: .whitespaces).isEmpty,
+       !sendGridKey.contains("your_sendgrid_api_key") {
+        let sendGridService = SendGridEmailService(
             apiKey: sendGridKey,
-            fromEmail: Environment.get("FROM_EMAIL") ?? "noreply@openedschool.com",
+            fromEmail: fromEmail,
             httpClient: app.http.client.shared
         )
+
+        if app.environment == .development || app.environment == .testing {
+            // In dev/testing: Primary is SendGrid, but if it fails (invalid key, rate limit, offline),
+            // seamlessly fall back to Mailpit, and then to Console.
+            let devFallback = FallbackEmailService(
+                primary: mailpitService,
+                fallback: consoleService,
+                logger: app.logger
+            )
+            app.emailService = FallbackEmailService(
+                primary: sendGridService,
+                fallback: devFallback,
+                logger: app.logger
+            )
+        } else {
+            app.emailService = sendGridService
+        }
     } else {
-        app.logger.warning("SENDGRID_API_KEY not set — falling back to console email logging")
-        app.emailService = ConsoleEmailService(logger: app.logger)
+        if app.environment == .development || app.environment == .testing {
+            app.logger.info("SENDGRID_API_KEY not configured — using Mailpit (http://\(mailpitHost):\(mailpitPort)) with Console fallback")
+            app.emailService = FallbackEmailService(
+                primary: mailpitService,
+                fallback: consoleService,
+                logger: app.logger
+            )
+        } else {
+            app.logger.warning("SENDGRID_API_KEY not set in production — falling back to console email logging")
+            app.emailService = consoleService
+        }
     }
 }
 
