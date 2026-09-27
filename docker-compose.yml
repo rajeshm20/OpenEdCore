@@ -88,6 +88,15 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: openedcore-mailpit
+    restart: unless-stopped
+    ports:
+      - '8025:8025'   # Web UI & REST API
+      - '1025:1025'   # SMTP port
+    environment:
+      MP_MAX_MESSAGES: 500
   test:
     image: swift:6.0-noble
     working_dir: /app

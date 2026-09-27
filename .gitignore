@@ -11,3 +11,5 @@ db.sqlite
 !.env.example
 certs/
 *.p12
+__pycache__/
+*.pyc
