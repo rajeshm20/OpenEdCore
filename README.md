@@ -39,7 +39,6 @@
 - [Project Structure](#project-structure)
 - [Contributing](#contributing)
 - [License and Maintainers](#license-and-maintainers)
-- [Acknowledgments](#acknowledgments)
 
 ---
 
@@ -690,9 +689,3 @@ This project is licensed under the terms of the [MIT License](LICENSE).
 - **Repository**: [rajeshm20/OpenEdCore](https://github.com/rajeshm20/OpenEdCore)
 
 > **Image Asset Note**: If visual UI screenshots or architecture mockups are added in the future, please place them in `./docs/images/` and link them using standard Markdown syntax.
-
----
-
-## Acknowledgments
-
-Built with the assistance of AI coding tools (e.g., Claude) for scaffolding and code review; architecture and implementation decisions are my own.
