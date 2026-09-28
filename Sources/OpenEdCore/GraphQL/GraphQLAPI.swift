@@ -291,7 +291,62 @@ final class StudentGraphQLAPI: API, @unchecked Sendable {
 
 enum StudentGraphQLSchema {
     static func build() throws -> Graphiti.Schema<GraphQLResolver, Request> {
-        try Graphiti.Schema<GraphQLResolver, Request> {
+        let coders = Coders()
+        coders.decoder.dateDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            if let str = try? container.decode(String.self) {
+                // 1. Try standard YYYY-MM-DD (e.g. "2012-10-24")
+                let ymd = DateFormatter()
+                ymd.dateFormat = "yyyy-MM-dd"
+                ymd.timeZone = TimeZone(secondsFromGMT: 0)
+                ymd.locale = Locale(identifier: "en_US_POSIX")
+                if let d = ymd.date(from: str) {
+                    return d
+                }
+
+                // 2. Try ISO8601 with fractional seconds
+                let iso = ISO8601DateFormatter()
+                iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+                if let d = iso.date(from: str) {
+                    return d
+                }
+
+                // 3. Try standard ISO8601
+                iso.formatOptions = [.withInternetDateTime]
+                if let d = iso.date(from: str) {
+                    return d
+                }
+
+                // 4. Try date-time without Z or with space
+                let fallback = DateFormatter()
+                fallback.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+                fallback.timeZone = TimeZone(secondsFromGMT: 0)
+                fallback.locale = Locale(identifier: "en_US_POSIX")
+                if let d = fallback.date(from: str) {
+                    return d
+                }
+
+                throw DecodingError.dataCorruptedError(
+                    in: container,
+                    debugDescription: "Invalid date format '\(str)'. Expected 'YYYY-MM-DD' or ISO-8601 format."
+                )
+            }
+
+            if let timestamp = try? container.decode(Double.self) {
+                if timestamp > 100_000_000_000 {
+                    return Date(timeIntervalSince1970: timestamp / 1000.0)
+                }
+                return Date(timeIntervalSince1970: timestamp)
+            }
+
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Expected Date string (e.g. 'YYYY-MM-DD') or timestamp"
+            )
+        }
+        coders.encoder.dateEncodingStrategy = .iso8601
+
+        return try Graphiti.Schema<GraphQLResolver, Request>(coders: coders) {
             Scalar(UUID.self)
             Scalar(Date.self)
 
