@@ -185,14 +185,14 @@ private func configureMiddleware(_ app: Application) throws {
     // and outgoing responses with latency, HTTP status code, client IP, and User-Agent.
     app.middleware.use(RequestLoggingMiddleware())
 
-    // 2. SecurityHeadersMiddleware: Sets security headers on all responses (including errors and HTTPS HSTS).
+    // 2. CORSMiddleware: Placed before error handling so that 4xx/5xx error responses contain proper CORS headers.
+    app.middleware.use(CORSMiddleware(configuration: corsConfig))
+
+    // 3. SecurityHeadersMiddleware: Sets security headers on all responses (including errors and HTTPS HSTS).
     app.middleware.use(SecurityHeadersMiddleware(environment: app.environment))
 
-    // 3. UnifiedErrorMiddleware: Formats all 4xx/5xx responses into the standardized error envelope.
+    // 4. UnifiedErrorMiddleware: Formats all 4xx/5xx responses into the standardized error envelope.
     app.middleware.use(UnifiedErrorMiddleware(environment: app.environment))
-
-    // 4. CORSMiddleware: Strict origin validation.
-    app.middleware.use(CORSMiddleware(configuration: corsConfig))
 
     // 5. RateLimiterMiddleware: Throttles bursts and brute-force attempts.
     app.middleware.use(RateLimiterMiddleware())

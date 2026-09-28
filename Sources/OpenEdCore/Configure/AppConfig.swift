@@ -111,8 +111,13 @@ enum AppConfig {
     static func corsAllowedOrigin(for environment: Environment) throws
         -> CORSMiddleware.AllowOriginSetting
     {
-        if let origin = Environment.get("ALLOWED_ORIGIN"), !origin.isEmpty, origin != "*" {
-            return .custom(origin)
+        if let raw = Environment.get("ALLOWED_ORIGIN"), !raw.isEmpty, raw != "*" {
+            let origins = raw.split(separator: ",").map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+            if origins.count > 1 {
+                return .any(origins)
+            } else if let single = origins.first {
+                return .custom(single)
+            }
         }
 
         if environment == .production {
@@ -122,7 +127,12 @@ enum AppConfig {
             )
         }
 
-        return .custom(Environment.get("ALLOWED_ORIGIN") ?? "http://localhost:8081")
+        return .any([
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "http://localhost:8081",
+            "http://127.0.0.1:8081"
+        ])
     }
 
     /// Determines the minimum TLS version to enforce for TLS listeners and clients.
