@@ -294,6 +294,8 @@ private func configureMigrations(_ app: Application) throws {
     app.migrations.add(AddRoleStatusPhoneToStudents())
     app.migrations.add(CreateRefreshToken())
     app.migrations.add(HardenPasswordResetTokens())
+    app.migrations.add(CreateAccessRequest())
+    app.migrations.add(CreateInvitePasscode())
 
     if AppConfig.shouldAutoMigrate(in: app.environment) {
         app.logger.notice("AUTO_MIGRATE enabled — running migrations on startup")
