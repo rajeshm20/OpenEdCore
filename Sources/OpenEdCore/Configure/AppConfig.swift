@@ -111,29 +111,37 @@ enum AppConfig {
     static func corsAllowedOrigin(for environment: Environment) throws
         -> CORSMiddleware.AllowOriginSetting
     {
+        var origins: [String] = []
         if let raw = Environment.get("ALLOWED_ORIGIN"), !raw.isEmpty, raw != "*" {
-            let origins = raw.split(separator: ",").map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
-            if origins.count > 1 {
-                return .any(origins)
-            } else if let single = origins.first {
-                return .custom(single)
-            }
+            origins = raw.split(separator: ",").map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
         }
 
-        if environment == .production {
+        if environment != .production {
+            let devOrigins = [
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+                "http://localhost:8081",
+                "http://127.0.0.1:8081",
+                "https://127.0.0.1:8080"
+            ]
+            for d in devOrigins {
+                if !origins.contains(d) {
+                    origins.append(d)
+                }
+            }
+            return .any(origins)
+        }
+
+        if origins.isEmpty {
             throw Abort(
                 .internalServerError,
                 reason: "ALLOWED_ORIGIN must be set to an explicit origin in production"
             )
         }
 
-        return .any([
-            "http://localhost:3000",
-            "http://127.0.0.1:3000",
-            "http://localhost:8081",
-            "http://127.0.0.1:8081"
-        ])
+        return origins.count > 1 ? .any(origins) : .custom(origins[0])
     }
+
 
     /// Determines the minimum TLS version to enforce for TLS listeners and clients.
     /// Defaults to TLS 1.2 (.tlsv12). Supports upgrading to TLS 1.3 (.tlsv13).
