@@ -54,9 +54,12 @@ func databaseTLSConfiguration(for environment: Environment) -> TLSConfiguration?
 }
 
 private func configureDatabase(_ app: Application) throws {
-    let driver = (Environment.get("DB_DRIVER") ?? Environment.get("DATABASE_DRIVER") ?? "postgres").lowercased()
+    let driver = (Environment.get("DB_DRIVER") ?? Environment.get("DATABASE_DRIVER") ?? "postgres")
+        .lowercased()
 
-    if (app.environment == .testing && Environment.get("TEST_USE_EXTERNAL_DB") != "true") || driver == "sqlite" {
+    if (app.environment == .testing && Environment.get("TEST_USE_EXTERNAL_DB") != "true")
+        || driver == "sqlite"
+    {
         app.databases.use(.sqlite(.memory), as: .sqlite, isDefault: true)
         return
     }
@@ -77,20 +80,26 @@ private func configureDatabase(_ app: Application) throws {
         }
 
         guard let host = Environment.get("DATABASE_HOST"), !host.isEmpty else {
-            throw Abort(.internalServerError, reason: "DATABASE_HOST environment variable is required")
+            throw Abort(
+                .internalServerError, reason: "DATABASE_HOST environment variable is required")
         }
         let port = Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? 5432
         if port == 3306 {
-            app.logger.warning("DATABASE_PORT is set to 3306 (MySQL default port) while DB_DRIVER is postgres! Ensure you connect to PostgreSQL on port 5432.")
+            app.logger.warning(
+                "DATABASE_PORT is set to 3306 (MySQL default port) while DB_DRIVER is postgres! Ensure you connect to PostgreSQL on port 5432."
+            )
         }
         guard let user = Environment.get("DATABASE_USER"), !user.isEmpty else {
-            throw Abort(.internalServerError, reason: "DATABASE_USER environment variable is required")
+            throw Abort(
+                .internalServerError, reason: "DATABASE_USER environment variable is required")
         }
         guard let password = Environment.get("DATABASE_PASSWORD"), !password.isEmpty else {
-            throw Abort(.internalServerError, reason: "DATABASE_PASSWORD environment variable is required")
+            throw Abort(
+                .internalServerError, reason: "DATABASE_PASSWORD environment variable is required")
         }
         guard let database = Environment.get("DATABASE_NAME"), !database.isEmpty else {
-            throw Abort(.internalServerError, reason: "DATABASE_NAME environment variable is required")
+            throw Abort(
+                .internalServerError, reason: "DATABASE_NAME environment variable is required")
         }
 
         let tlsConfig: PostgresConnection.Configuration.TLS
@@ -133,32 +142,43 @@ private func configureDatabase(_ app: Application) throws {
 
     case "mysql":
         guard let host = Environment.get("DATABASE_HOST"), !host.isEmpty else {
-            throw Abort(.internalServerError, reason: "DATABASE_HOST environment variable is required")
+            throw Abort(
+                .internalServerError, reason: "DATABASE_HOST environment variable is required")
         }
-        let port = Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? MySQLConfiguration.ianaPortNumber
+        let port =
+            Environment.get("DATABASE_PORT").flatMap(Int.init(_:))
+            ?? MySQLConfiguration.ianaPortNumber
         guard let user = Environment.get("DATABASE_USER"), !user.isEmpty else {
-            throw Abort(.internalServerError, reason: "DATABASE_USER environment variable is required")
+            throw Abort(
+                .internalServerError, reason: "DATABASE_USER environment variable is required")
         }
         guard let password = Environment.get("DATABASE_PASSWORD"), !password.isEmpty else {
-            throw Abort(.internalServerError, reason: "DATABASE_PASSWORD environment variable is required")
+            throw Abort(
+                .internalServerError, reason: "DATABASE_PASSWORD environment variable is required")
         }
         guard let database = Environment.get("DATABASE_NAME"), !database.isEmpty else {
-            throw Abort(.internalServerError, reason: "DATABASE_NAME environment variable is required")
+            throw Abort(
+                .internalServerError, reason: "DATABASE_NAME environment variable is required")
         }
 
-        app.databases.use(.mysql(
-            hostname: host,
-            port: port,
-            username: user,
-            password: password,
-            database: database,
-            tlsConfiguration: databaseTLSConfiguration(for: app.environment),
-            maxConnectionsPerEventLoop: 8,
-            connectionPoolTimeout: .seconds(10)
-        ), as: .mysql, isDefault: true)
+        app.databases.use(
+            .mysql(
+                hostname: host,
+                port: port,
+                username: user,
+                password: password,
+                database: database,
+                tlsConfiguration: databaseTLSConfiguration(for: app.environment),
+                maxConnectionsPerEventLoop: 8,
+                connectionPoolTimeout: .seconds(10)
+            ), as: .mysql, isDefault: true)
 
     default:
-        throw Abort(.internalServerError, reason: "Unsupported DB_DRIVER: '\(driver)'. Supported values: 'postgres', 'mysql', 'sqlite'.")
+        throw Abort(
+            .internalServerError,
+            reason:
+                "Unsupported DB_DRIVER: '\(driver)'. Supported values: 'postgres', 'mysql', 'sqlite'."
+        )
     }
 }
 
@@ -166,7 +186,8 @@ private func configureMiddleware(_ app: Application) throws {
     // Configure log level: reads LOG_LEVEL env var (e.g. debug, info, notice, warning, error),
     // defaulting to .info in development/testing and .notice in production.
     if let logLevelStr = Environment.get("LOG_LEVEL")?.lowercased(),
-       let level = Logger.Level(rawValue: logLevelStr) {
+        let level = Logger.Level(rawValue: logLevelStr)
+    {
         app.logger.logLevel = level
     } else {
         app.logger.logLevel = app.environment == .production ? .notice : .info
@@ -221,7 +242,9 @@ private func configureEmail(_ app: Application) {
 
     // Explicit Mailpit mode
     if provider == "mailpit" {
-        app.logger.info("Using Mailpit email service at http://\(mailpitHost):\(mailpitPort) with Console fallback")
+        app.logger.info(
+            "Using Mailpit email service at http://\(mailpitHost):\(mailpitPort) with Console fallback"
+        )
         app.emailService = FallbackEmailService(
             primary: mailpitService,
             fallback: consoleService,
@@ -239,9 +262,10 @@ private func configureEmail(_ app: Application) {
 
     // Brevo configured
     if provider == "brevo" || Environment.get("BREVO_API_KEY") != nil,
-       let brevoKey = Environment.get("BREVO_API_KEY"),
-       !brevoKey.trimmingCharacters(in: .whitespaces).isEmpty,
-       !brevoKey.contains("your_brevo_api_key") {
+        let brevoKey = Environment.get("BREVO_API_KEY"),
+        !brevoKey.trimmingCharacters(in: .whitespaces).isEmpty,
+        !brevoKey.contains("your_brevo_api_key")
+    {
         let brevoService = BrevoEmailService(
             apiKey: brevoKey,
             fromEmail: fromEmail,
@@ -267,8 +291,9 @@ private func configureEmail(_ app: Application) {
 
     // SendGrid configured
     if let sendGridKey = Environment.get("SENDGRID_API_KEY"),
-       !sendGridKey.trimmingCharacters(in: .whitespaces).isEmpty,
-       !sendGridKey.contains("your_sendgrid_api_key") {
+        !sendGridKey.trimmingCharacters(in: .whitespaces).isEmpty,
+        !sendGridKey.contains("your_sendgrid_api_key")
+    {
         let sendGridService = SendGridEmailService(
             apiKey: sendGridKey,
             fromEmail: fromEmail,
@@ -293,14 +318,17 @@ private func configureEmail(_ app: Application) {
         }
     } else {
         if app.environment == .development || app.environment == .testing {
-            app.logger.info("SENDGRID_API_KEY not configured — using Mailpit (http://\(mailpitHost):\(mailpitPort)) with Console fallback")
+            app.logger.info(
+                "SENDGRID_API_KEY not configured — using Mailpit (http://\(mailpitHost):\(mailpitPort)) with Console fallback"
+            )
             app.emailService = FallbackEmailService(
                 primary: mailpitService,
                 fallback: consoleService,
                 logger: app.logger
             )
         } else {
-            app.logger.warning("SENDGRID_API_KEY not set in production — falling back to console email logging")
+            app.logger.warning(
+                "SENDGRID_API_KEY not set in production — falling back to console email logging")
             app.emailService = consoleService
         }
     }
@@ -309,11 +337,13 @@ private func configureEmail(_ app: Application) {
 private func configureMigrations(_ app: Application) throws {
     // Reconcile legacy migration history if project was renamed from StudentAppBackend to OpenEdCore
     if let sql = app.db as? any SQLDatabase {
-        _ = try? sql.raw("""
-            UPDATE _fluent_migrations 
-            SET name = REPLACE(name, 'StudentAppBackend.', 'OpenEdCore.') 
-            WHERE name LIKE 'StudentAppBackend.%';
-        """).run().wait()
+        _ = try? sql.raw(
+            """
+                UPDATE _fluent_migrations 
+                SET name = REPLACE(name, 'StudentAppBackend.', 'OpenEdCore.') 
+                WHERE name LIKE 'StudentAppBackend.%';
+            """
+        ).run().wait()
     }
 
     app.migrations.add(CreateStudent())
