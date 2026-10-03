@@ -70,7 +70,8 @@ private func configureDatabase(_ app: Application) throws {
                     maxConnectionsPerEventLoop: 8,
                     connectionPoolTimeout: .seconds(10)
                 ),
-                as: .psql
+                as: .psql,
+                isDefault: true
             )
             return
         }
@@ -233,6 +234,34 @@ private func configureEmail(_ app: Application) {
     if provider == "console" {
         app.logger.info("Using Console email logging")
         app.emailService = consoleService
+        return
+    }
+
+    // Brevo configured
+    if provider == "brevo" || Environment.get("BREVO_API_KEY") != nil,
+       let brevoKey = Environment.get("BREVO_API_KEY"),
+       !brevoKey.trimmingCharacters(in: .whitespaces).isEmpty,
+       !brevoKey.contains("your_brevo_api_key") {
+        let brevoService = BrevoEmailService(
+            apiKey: brevoKey,
+            fromEmail: fromEmail,
+            httpClient: app.http.client.shared
+        )
+        if app.environment == .development || app.environment == .testing {
+            let devFallback = FallbackEmailService(
+                primary: mailpitService,
+                fallback: consoleService,
+                logger: app.logger
+            )
+            app.emailService = FallbackEmailService(
+                primary: brevoService,
+                fallback: devFallback,
+                logger: app.logger
+            )
+        } else {
+            app.logger.info("Using Brevo email service (from: \(fromEmail))")
+            app.emailService = brevoService
+        }
         return
     }
 
