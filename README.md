@@ -1,16 +1,23 @@
 <div align="center">
 
-![OpenEdCore Vapor Swift Server Banner](./docs/images/vapor-swift-banner.png)
+<a href="https://openedschool.com">
+  <img src="./docs/images/opened-school-banner.svg" alt="OpenEd School - OpenEdCore Banner" width="100%" />
+</a>
 
 # OpenEdCore
+### The Core Backend Engine for [OpenEd School](https://openedschool.com)
 
 **High-performance, production-ready Vapor 4 / Swift 6 backend providing dual REST and GraphQL APIs for student identity and academic lifecycle management.**
 
+*“Learning, connected.”*
+
 <p align="center">
+  <a href="https://openedschool.com"><img src="https://img.shields.io/badge/Web_Portal-openedschool.com-2563EB?logo=googlechrome&logoColor=white" alt="Web Portal" /></a>
   <a href="https://github.com/rajeshm20/OpenEdCore/actions/workflows/swift.yml"><img src="https://github.com/rajeshm20/OpenEdCore/actions/workflows/swift.yml/badge.svg" alt="CI/CD" /></a>
   <a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-6.0-F05138.svg?logo=swift&logoColor=white" alt="Swift Version" /></a>
   <a href="https://vapor.codes"><img src="https://img.shields.io/badge/Vapor-4.115-blue.svg?logo=vapor&logoColor=white" alt="Vapor Framework" /></a>
   <a href="https://www.postgresql.org"><img src="https://img.shields.io/badge/PostgreSQL-16-336791.svg?logo=postgresql&logoColor=white" alt="Database" /></a>
+  <a href="https://fonts.google.com/specimen/Plus+Jakarta+Sans"><img src="https://img.shields.io/badge/Typography-Plus_Jakarta_Sans-0B132B" alt="Typography" /></a>
   <a href="https://github.com/rajeshm20/OpenEdCore/pkgs/container/openedcore"><img src="https://img.shields.io/badge/GHCR-v2.0.0-blue?logo=docker&logoColor=white" alt="Docker Image" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT" /></a>
 </p>
@@ -22,6 +29,7 @@
 ## Table of Contents
 
 - [Overview](#overview)
+- [Brand & Design Identity](#brand--design-identity)
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
 - [Features](#features)
@@ -48,6 +56,38 @@ OpenEdCore is an enterprise-grade backend service engineered in Swift 6 and Vapo
 
 ---
 
+## Brand & Design Identity
+
+OpenEdCore serves as the server-side foundation for the **[OpenEd School](https://openedschool.com)** ecosystem. Its developer and user experience is coordinated with the web client ([`opened-school-web`](../opened-school-web)) and mobile clients ([`StudyApp`](../StudyApp)), adopting the visual identity of the **Study – E-Learning UI Kits** design system.
+
+<div align="center">
+  <br/>
+  <a href="https://openedschool.com">
+    <img src="./docs/images/opened-school-logo.svg" alt="OpenEd School Logo" width="280" />
+  </a>
+  <p><em>Official brand mark: The OpenEd Hex-Book mark with radiant sky-blue pulse dot.</em></p>
+  <br/>
+</div>
+
+### Typography System
+
+| Role | Typeface | Weights | Usage Scope |
+| :--- | :--- | :--- | :--- |
+| **Primary Sans (UI & Display)** | [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) | `500` (Medium), `700` (Bold), `800` (ExtraBold) | Web portal headings, navigation, dashboard typography, marketing |
+| **Monospace (Code & Metrics)** | [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) | `400` (Regular), `600` (SemiBold) | API envelopes, DTO structures, error codes, CLI logs, telemetry |
+
+### Color Palette & Design Tokens
+
+| Token | Hex | RGB | Swatch | Architectural Purpose |
+| :--- | :--- | :--- | :---: | :--- |
+| `--color-brand-navy` | `#0B132B` | `rgb(11, 19, 43)` | ![#0B132B](https://img.shields.io/badge/-%230B132B-0B132B?style=flat-square) | Midnight base, dark viewport backgrounds, server headers |
+| `--color-primary-blue` | `#2563EB` | `rgb(37, 99, 235)` | ![#2563EB](https://img.shields.io/badge/-%232563EB-2563EB?style=flat-square) | Primary brand accent, interactive CTAs, active API routes |
+| `--color-brand-indigo` | `#4338CA` | `rgb(67, 56, 202)` | ![#4338CA](https://img.shields.io/badge/-%234338CA-4338CA?style=flat-square) | Gradient pairing, card borders, active focus boundaries |
+| `--color-sky-accent` | `#38BDF8` | `rgb(56, 189, 248)` | ![#38BDF8](https://img.shields.io/badge/-%2338BDF8-38BDF8?style=flat-square) | Live pulse indicators, health probes, status badges |
+| `--color-surface-slate`| `#F8FAFC` | `rgb(248, 250, 252)` | ![#F8FAFC](https://img.shields.io/badge/-%23F8FAFC-F8FAFC?style=flat-square) | Light background canvas, neutral container surfaces |
+
+---
+
 ## Architecture
 
 The following Mermaid diagram outlines the request lifecycle, illustrating how client requests traverse security middleware, routing layers, business services, and database persistence, as well as background email integration:
@@ -56,7 +96,7 @@ The following Mermaid diagram outlines the request lifecycle, illustrating how c
 flowchart TD
     subgraph Clients["Clients"]
         iOS["iOS App (StudyApp)"]
-        Web["Web / Third-Party Clients"]
+        Web["Web Client (openedschool.com)"]
         Playground["GraphiQL (GET /graphiql)"]
     end
 
@@ -685,7 +725,10 @@ For detailed guidelines, please review [`CONTRIBUTING.md`](CONTRIBUTING.md).
 
 This project is licensed under the terms of the [MIT License](LICENSE).
 
+- **Ecosystem Platform**: [openedschool.com](https://openedschool.com)
 - **Project Maintainer**: Rajesh Mani ([@rajeshm20](https://github.com/rajeshm20))
-- **Repository**: [rajeshm20/OpenEdCore](https://github.com/rajeshm20/OpenEdCore)
+- **Core Engine Repository**: [rajeshm20/OpenEdCore](https://github.com/rajeshm20/OpenEdCore)
+- **Web Client Repository**: [opened-school-web](../opened-school-web)
+- **Mobile Client Repository**: [StudyApp](../StudyApp)
 
-> **Image Asset Note**: If visual UI screenshots or architecture mockups are added in the future, please place them in `./docs/images/` and link them using standard Markdown syntax.
+> **Design & Asset Note**: Visual assets, vector banners, and brand tokens are located in [`docs/images/`](./docs/images/) adhering to the OpenEd School design guidelines.

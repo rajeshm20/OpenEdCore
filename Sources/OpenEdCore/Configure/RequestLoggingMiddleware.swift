@@ -9,7 +9,7 @@ public final class RequestLoggingMiddleware: AsyncMiddleware, @unchecked Sendabl
 
     public func respond(to request: Request, chainingTo next: any AsyncResponder) async throws -> Response {
         let startTime = DispatchTime.now()
-        let method = request.method.string
+        let method = request.method.rawValue
         let path = request.url.string
 
         let clientIP = request.headers.first(name: "X-Forwarded-For")

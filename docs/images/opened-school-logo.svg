@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" width="280" height="64" fill="none">
+  <defs>
+    <linearGradient id="logoBoxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#4338ca"/>
+    </linearGradient>
+    <filter id="logoShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#2563eb" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap');
+    .logo-title { font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; font-weight: 800; }
+    .logo-tagline { font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; font-weight: 500; }
+  </style>
+
+  <!-- Hex-Book Icon Container -->
+  <g transform="translate(6, 8)">
+    <rect width="48" height="48" rx="14" fill="url(#logoBoxGrad)" filter="url(#logoShadow)"/>
+    <g transform="translate(11, 11) scale(1.1)" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+      <path d="M6 6h10"/>
+      <path d="M6 10h10"/>
+      <path d="M6 14h6"/>
+    </g>
+    <!-- Pulse Indicator -->
+    <circle cx="43" cy="5" r="4.5" fill="#38bdf8" stroke="#ffffff" stroke-width="1.8"/>
+  </g>
+
+  <!-- Typography -->
+  <g transform="translate(66, 32)">
+    <text x="0" y="0" class="logo-title" font-size="22" fill="#0f172a" letter-spacing="-0.5">OpenEd<tspan fill="#2563eb">.</tspan></text>
+    
+    <!-- School Pill -->
+    <g transform="translate(88, -17)">
+      <rect width="58" height="20" rx="5" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1"/>
+      <text x="29" y="14" class="logo-title" font-size="10" font-weight="700" fill="#1d4ed8" text-anchor="middle" letter-spacing="1">SCHOOL</text>
+    </g>
+
+    <!-- Tagline -->
+    <text x="0" y="19" class="logo-tagline" font-size="12" fill="#64748b">Learning, connected.</text>
+  </g>
+</svg>

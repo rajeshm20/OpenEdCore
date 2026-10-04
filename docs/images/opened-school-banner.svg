@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070c1e"/>
+      <stop offset="50%" stop-color="#0b132b"/>
+      <stop offset="100%" stop-color="#141f45"/>
+    </linearGradient>
+
+    <!-- Logo Box Gradient -->
+    <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="100%" stop-color="#4338ca"/>
+    </linearGradient>
+
+    <!-- Accent Glow -->
+    <radialGradient id="glow" cx="20%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="swiftGlow" cx="85%" cy="50%" r="45%">
+      <stop offset="0%" stop-color="#f05138" stop-opacity="0.14"/>
+      <stop offset="100%" stop-color="#f05138" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Drop Shadow for Logo -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#2563eb" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap');
+    .title-font { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 800; }
+    .body-font { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 500; }
+    .mono-font { font-family: 'JetBrains Mono', monospace; }
+  </style>
+
+  <!-- Background -->
+  <rect width="1200" height="320" rx="16" fill="url(#bgGrad)"/>
+  <rect width="1200" height="320" rx="16" fill="url(#glow)"/>
+  <rect width="1200" height="320" rx="16" fill="url(#swiftGlow)"/>
+
+  <!-- Subtle Grid Lines -->
+  <g stroke="rgba(255,255,255,0.03)" stroke-width="1">
+    <line x1="0" y1="80" x2="1200" y2="80"/>
+    <line x1="0" y1="160" x2="1200" y2="160"/>
+    <line x1="0" y1="240" x2="1200" y2="240"/>
+    <line x1="300" y1="0" x2="300" y2="320"/>
+    <line x1="600" y1="0" x2="600" y2="320"/>
+    <line x1="900" y1="0" x2="900" y2="320"/>
+  </g>
+
+  <!-- Border Frame -->
+  <rect x="1" y="1" width="1198" height="318" rx="15" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="2"/>
+
+  <!-- LOGO MARK -->
+  <g transform="translate(80, 85)">
+    <!-- Rounded Box Container -->
+    <rect width="150" height="150" rx="36" fill="url(#logoGrad)" filter="url(#dropShadow)"/>
+    
+    <!-- Open Book Icon -->
+    <g transform="translate(35, 35) scale(3.3)" stroke="#ffffff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/>
+      <path d="M6 6h10"/>
+      <path d="M6 10h10"/>
+      <path d="M6 14h6"/>
+    </g>
+
+    <!-- Glowing Active Pulse Node -->
+    <circle cx="132" cy="18" r="11" fill="#38bdf8" stroke="#ffffff" stroke-width="3.5"/>
+  </g>
+
+  <!-- BRAND HEADLINE & TAGLINE -->
+  <g transform="translate(265, 125)">
+    <!-- OpenEd. -->
+    <text x="0" y="0" class="title-font" font-size="52" fill="#ffffff" letter-spacing="-1">OpenEd<tspan fill="#38bdf8">.</tspan></text>
+    
+    <!-- School Pill Badge -->
+    <g transform="translate(205, -38)">
+      <rect width="96" height="32" rx="8" fill="rgba(56, 189, 248, 0.15)" stroke="#38bdf8" stroke-width="1.2"/>
+      <text x="48" y="21" class="title-font" font-size="14" font-weight="700" fill="#38bdf8" text-anchor="middle" letter-spacing="1.5">SCHOOL</text>
+    </g>
+
+    <!-- Subtitle / Tagline -->
+    <text x="0" y="36" class="body-font" font-size="21" fill="#94a3b8" letter-spacing="0.2">Learning, connected. <tspan fill="#64748b">•</tspan> <tspan fill="#38bdf8" font-weight="600">openedschool.com</tspan></text>
+
+    <!-- Core Engine Descriptor -->
+    <text x="0" y="74" class="mono-font" font-size="15" fill="#cbd5e1" font-weight="600">
+      OpenEdCore <tspan fill="#64748b">|</tspan> <tspan fill="#94a3b8">Swift 6 &amp; Vapor 4 Dual REST / GraphQL Backend Engine</tspan>
+    </text>
+  </g>
+
+  <!-- PILL TECH PILLS (RIGHT SIDE) -->
+  <g transform="translate(940, 75)">
+    <!-- Swift 6 Pill -->
+    <g transform="translate(0, 0)">
+      <rect width="180" height="42" rx="10" fill="rgba(240, 81, 56, 0.12)" stroke="rgba(240, 81, 56, 0.4)" stroke-width="1"/>
+      <circle cx="24" cy="21" r="6" fill="#f05138"/>
+      <text x="40" y="26" class="mono-font" font-size="13" font-weight="600" fill="#ff7a64">Swift 6.0 Strict</text>
+    </g>
+
+    <!-- Vapor 4 Pill -->
+    <g transform="translate(0, 56)">
+      <rect width="180" height="42" rx="10" fill="rgba(37, 99, 235, 0.14)" stroke="rgba(56, 189, 248, 0.35)" stroke-width="1"/>
+      <circle cx="24" cy="21" r="6" fill="#38bdf8"/>
+      <text x="40" y="26" class="mono-font" font-size="13" font-weight="600" fill="#7dd3fc">Vapor 4.115</text>
+    </g>
+
+    <!-- Postgres 16 Pill -->
+    <g transform="translate(0, 112)">
+      <rect width="180" height="42" rx="10" fill="rgba(51, 103, 145, 0.2)" stroke="rgba(51, 103, 145, 0.6)" stroke-width="1"/>
+      <circle cx="24" cy="21" r="6" fill="#60a5fa"/>
+      <text x="40" y="26" class="mono-font" font-size="13" font-weight="600" fill="#93c5fd">PostgreSQL 16</text>
+    </g>
+  </g>
+</svg>
